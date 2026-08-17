@@ -5,7 +5,7 @@ import pandas as pd
 st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # VUL HIER JOUW SHEET ID IN
-SHEET_ID = "https://docs.google.com/spreadsheets/d/1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI/edit?usp=sharing" 
+SHEET_ID = "https://docs.google.com/spreadsheets/d/1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI/edit?gid=1879327968#gid=1879327968" 
 
 # Functie om data op te halen via de CSV-export link van Google Sheets
 @st.cache_data(ttl=600)
