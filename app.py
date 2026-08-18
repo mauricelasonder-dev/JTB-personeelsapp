@@ -42,15 +42,22 @@ if check_password():
         vandaag_code = dagen_map.get(datetime.datetime.today().weekday())
 
         # Functie om de actuele status te bepalen op basis van rooster + handmatige override
-        def bereken_status(row):
+       def bereken_status(row):
             naam = row['Naam']
             if naam in st.session_state["custom_statuses"]:
                 return st.session_state["custom_statuses"][naam]
             
             if vandaag_code and vandaag_code in df.columns:
                 werkdag_waarde = row[vandaag_code]
-                if pd.notna(werkdag_waarde) and str(werkdag_waarde).strip() in ["1", "1.0", "waar", "True"]:
-                    return "Aanwezig (Rooster)"
+                # Als er bijv. "Ochtend", "Middag" of "0.5" in het rooster staat
+                if pd.notna(werkdag_waarde):
+                    val_str = str(werkdag_waarde).strip()
+                    if val_str in ["1", "1.0", "waar", "True"]:
+                        return "Aanwezig (Rooster)"
+                    elif val_str.lower() in ["ochtend", "0.5 ochtend"]:
+                        return "Aanwezig (Ochtend)"
+                    elif val_str.lower() in ["middag", "0.5 middag"]:
+                        return "Aanwezig (Middag)"
             
             return "Vrij (Rooster)"
 
