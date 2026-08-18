@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
@@ -50,15 +50,12 @@ if check_password():
             if vandaag_code and vandaag_code in df.columns:
                 werkdag_waarde = row[vandaag_code]
                 if pd.notna(werkdag_waarde):
-                    # Check voor getallen of tekst
                     val_str = str(werkdag_waarde).strip().lower()
                     if val_str in ["1", "1.0", "waar", "true"]:
                         return "Aanwezig (Rooster)"
-                    elif val_str in ["0.5", "0,5"]:
-                        return "Aanwezig (Ochtend)" # Standaard de ochtend bij 0.5
-                    elif val_str in ["ochtend"]:
+                    elif val_str in ["0.5", "0,5", "ochtend", "0.5 ochtend"]:
                         return "Aanwezig (Ochtend)"
-                    elif val_str in ["middag"]:
+                    elif val_str in ["middag", "0.5 middag"]:
                         return "Aanwezig (Middag)"
             
             return "Vrij (Rooster)"
@@ -92,7 +89,7 @@ if check_password():
 
             st.markdown("---")
 
-            # Afdelingen weergave op het beginscherm
+            # Afdelingen weergave op het beginscherm voor Aanwezigheid
             if 'Afdeling' in df.columns:
                 afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
                 alle_tabs = ["Totaaloverzicht"] + afdelingen_lijst
@@ -114,14 +111,35 @@ if check_password():
 
         with tab2:
             st.header("Interne Telefoongids")
-            zoekterm = st.text_input("Zoek op naam of functie:")
+            
+            # Optionele zoekbalk om snel iemand op te zoeken doorheen de hele gids
+            zoekterm = st.text_input("Zoek op naam of functie:", key="zoek_telefoon")
             
             df_display = df
             if zoekterm and 'Naam' in df.columns and 'Functie' in df.columns:
                 df_display = df[df['Naam'].str.contains(zoekterm, case=False, na=False) | 
                                 df['Functie'].str.contains(zoekterm, case=False, na=False)]
-            
-            st.dataframe(df_display[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
+                st.dataframe(df_display[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
+            else:
+                # Als er niet gezocht wordt, tonen we dezelfde tab-structuur per afdeling
+                if 'Afdeling' in df.columns:
+                    afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
+                    telefoon_tabs = ["Totaaloverzicht"] + afdelingen_lijst
+                    subtabs_tel = st.tabs(telefoon_tabs)
+                    
+                    # Totaaloverzicht telefoongids
+                    with subtabs_tel[0]:
+                        st.subheader("Totaaloverzicht Telefoongids")
+                        st.dataframe(df[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
+                    
+                    # Per afdeling telefoongids
+                    for i, afdeling in enumerate(afdelingen_lijst):
+                        with subtabs_tel[i + 1]:
+                            st.subheader(f"Afdeling: {afdeling}")
+                            df_afdeling = df[df['Afdeling'] == afdeling]
+                            st.dataframe(df_afdeling[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
+                else:
+                    st.dataframe(df[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
 
         with tab3:
             st.header("Personeelshandboek")
