@@ -4,57 +4,45 @@ import pandas as pd
 # Pagina instellingen
 st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
-# WACHTWOORD CONFIGURATIE
-PASSWORD = "Jtb2016!" # Verander dit naar je eigen wachtwoord
+# Jouw unieke Sheet ID
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 
-# GOOGLE SHEET CONFIGURATIE
-SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI" 
+# We gebruiken de directe export-link voor CSV, dit is de meest stabiele methode
+# gid=0 is jouw tabblad 'Medewerkers'
+CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
-@st.cache_data(ttl=600)
-def load_sheet(gid_nummer):
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={gid_nummer}"
-    return pd.read_csv(url)
+@st.cache_data(ttl=60)
+def get_data():
+    return pd.read_csv(CSV_URL)
 
-def check_password():
-    def password_entered():
-        if st.session_state["password"] == PASSWORD:
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]
-        else:
-            st.session_state["password_correct"] = False
+st.title("🏢 Personeelsportaal")
 
-    if "password_correct" not in st.session_state:
-        st.title("🔒 Inloggen Personeelsportaal")
-        st.text_input("Voer het wachtwoord in om door te gaan:", type="password", on_change=password_entered, key="password")
-        return False
-    elif not st.session_state["password_correct"]:
-        st.title("🔒 Inloggen Personeelsportaal")
-        st.text_input("Voer het wachtwoord in om door te gaan:", type="password", on_change=password_entered, key="password")
-        st.error("Wachtwoord onjuist. Probeer het opnieuw.")
-        return False
-    else:
-        return True
-
-# --- HOOFDPROGRAMMA ---
-if check_password():
-    st.title("🏢 Personeelsportaal")
+try:
+    df = get_data()
+    
+    # Tabs aanmaken
     tab1, tab2, tab3 = st.tabs(["Aanwezigheid", "Telefoongids", "Handboek"])
 
     with tab1:
         st.header("Wie is er vandaag?")
-        df = load_sheet("0")
         st.dataframe(df[['Naam', 'Status']], use_container_width=True)
 
     with tab2:
         st.header("Interne Telefoongids")
-        df_tel = load_sheet("0")
         zoekterm = st.text_input("Zoek op naam of functie:")
+        
+        df_display = df
         if zoekterm:
-            df_tel = df_tel[df_tel['Naam'].str.contains(zoekterm, case=False, na=False) | 
-                            df_tel['Functie'].str.contains(zoekterm, case=False, na=False)]
-        st.dataframe(df_tel[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
+            df_display = df[df['Naam'].str.contains(zoekterm, case=False, na=False) | 
+                            df['Functie'].str.contains(zoekterm, case=False, na=False)]
+        
+        st.dataframe(df_display[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
 
     with tab3:
         st.header("Personeelshandboek")
-        st.write("Klik hieronder voor het personeelshandboek.")
-        st.link_button("Open Handboek", "VOEG_HIER_JE_DRIVE_LINK_IN")
+        st.info("Het personeelshandboek volgt binnenkort.")
+
+except Exception as e:
+    st.error("Er ging iets mis bij het ophalen van de data.")
+    st.write("Foutmelding:", e)
+    st.write("Controleer of de Sheet op 'Iedereen met de link' staat en dat de kolomnamen exact 'Naam', 'Functie', 'Telefoon' en 'Status' zijn.")
