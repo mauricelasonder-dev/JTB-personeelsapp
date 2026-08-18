@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
@@ -106,7 +106,7 @@ if check_password():
             
             if st.button("Status Opslaan"):
                 st.session_state["custom_statuses"][gekozen_naam] = nieuwe_status
-                st.success(𒄑 f"De status voor {gekozen_naam} is succesvol aangepast naar '{nieuwe_status}' voor vandaag!")
+                st.success(f"De status voor {gekozen_naam} is succesvol aangepast naar '{nieuwe_status}' voor vandaag!")
                 st.rerun()
 
         with tab4:
