@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
@@ -44,11 +44,9 @@ if check_password():
         # Functie om de actuele status te bepalen op basis van rooster + handmatige override
         def bereken_status(row):
             naam = row['Naam']
-            # Als iemand handmatig iets heeft ingesteld voor vandaag, gebruik dat
             if naam in st.session_state["custom_statuses"]:
                 return st.session_state["custom_statuses"][naam]
             
-            # Anders kijken naar het rooster voor vandaag
             if vandaag_code and vandaag_code in df.columns:
                 werkdag_waarde = row[vandaag_code]
                 if pd.notna(werkdag_waarde) and str(werkdag_waarde).strip() in ["1", "1.0", "waar", "True"]:
@@ -58,12 +56,30 @@ if check_password():
 
         df['Actuele_Status'] = df.apply(bereken_status, axis=1)
 
-        # Hoofdtabs van de app
-        tab1, tab2, tab3, tab4 = st.tabs(["Aanwezigheid", "Telefoongids", "Zelf Ziek/Vrij melden", "Handboek"])
+        # Hoofdtabs van de app (zonder het losse ziek/vrij tabblad)
+        tab1, tab2, tab3 = st.tabs(["Aanwezigheid", "Telefoongids", "Handboek"])
 
         with tab1:
             st.header("Wie is er vandaag?")
             
+            # Direct op het beginscherm een inklapbaar menu om je status te wijzigen
+            with st.expander("🛠️ Zelf ziek of vrij melden voor vandaag"):
+                col_m, col_s, col_btn = st.columns([2, 2, 1])
+                with col_m:
+                    gekozen_naam = st.selectbox("Selecteer je naam:", df['Naam'].unique(), key="select_naam_1")
+                with col_s:
+                    nieuwe_status = st.selectbox("Status voor vandaag:", ["Aanwezig", "Ziek", "Vrij / Verlof"], key="select_status_1")
+                with col_btn:
+                    st.write("") # Kleine opvulruimte voor de uitlijning
+                    st.write("")
+                    if st.button("Opslaan"):
+                        st.session_state["custom_statuses"][gekozen_naam] = nieuwe_status
+                        st.success(f"Aangepast!")
+                        st.rerun()
+
+            st.markdown("---")
+
+            # Afdelingen weergave op het beginscherm
             if 'Afdeling' in df.columns:
                 afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
                 alle_tabs = ["Totaaloverzicht"] + afdelingen_lijst
@@ -95,21 +111,6 @@ if check_password():
             st.dataframe(df_display[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
 
         with tab3:
-            st.header("Status wijzigen (Ziek / Vrij)")
-            st.write("Geef hieronder aan als je vandaag afwijkt van je rooster (bijv. ziek of extra vrij).")
-            
-            col_m, col_s = st.columns(2)
-            with col_m:
-                gekozen_naam = st.selectbox("Selecteer je naam:", df['Naam'].unique())
-            with col_s:
-                nieuwe_status = st.selectbox("Status voor vandaag:", ["Aanwezig", "Ziek", "Vrij / Verlof"])
-            
-            if st.button("Status Opslaan"):
-                st.session_state["custom_statuses"][gekozen_naam] = nieuwe_status
-                st.success(f"De status voor {gekozen_naam} is succesvol aangepast naar '{nieuwe_status}' voor vandaag!")
-                st.rerun()
-
-        with tab4:
             st.header("Personeelshandboek")
             st.info("Het personeelshandboek volgt binnenkort.")
 
