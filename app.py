@@ -63,7 +63,7 @@ if check_password():
         df['Actuele_Status'] = df.apply(bereken_status, axis=1)
 
         # Hoofdtabs van de app
-        tab1, tab2, tab3 = st.tabs(["Aanwezigheid", "Telefoongids", "Handboek"])
+        tab1, tab2, tab3 = st.tabs(["Aanwezigheid", "Telefoongids", "Personeelsgids"])
 
         with tab1:
             st.header("Wie is er vandaag?")
