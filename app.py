@@ -21,7 +21,7 @@ try:
     tab1, tab2, tab3 = st.tabs(["Aanwezigheid per afdeling aanwezig", "Telefoongids", "Handboek"])
 
     with tab1:
-        st.header("Wie is er vandaag per afdeling?")
+        st.header("Wie is er vandaag per afdeling aanwezig?")
         
         # Zorg dat de kolomnaam 'Afdeling' bestaat
         if 'Afdeling' in df.columns:
