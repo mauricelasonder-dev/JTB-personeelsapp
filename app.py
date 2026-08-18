@@ -11,8 +11,8 @@ PASSWORD = "Jtb2016!" # Verander dit naar je eigen wachtwoord
 SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI" 
 
 @st.cache_data(ttl=600)
-def load_sheet(tabblad):
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={tabblad}"
+def load_sheet(gid_nummer):
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={gid_nummer}"
     return pd.read_csv(url)
 
 def check_password():
