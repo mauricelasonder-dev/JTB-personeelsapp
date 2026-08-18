@@ -4,8 +4,16 @@ import pandas as pd
 # Pagina instellingen
 st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
-# WACHTWOORD INSTELHULP
-PASSWORD = "Jtb2016!" # Verander dit naar jouw gewenste wachtwoord
+# WACHTWOORD CONFIGURATIE
+PASSWORD = "Jtb2016!" # Verander dit naar je eigen wachtwoord
+
+# GOOGLE SHEET CONFIGURATIE
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI" 
+
+@st.cache_data(ttl=600)
+def load_sheet(tabblad):
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={tabblad}"
+    return pd.read_csv(url)
 
 def check_password():
     def password_entered():
@@ -29,14 +37,6 @@ def check_password():
 
 # --- HOOFDPROGRAMMA ---
 if check_password():
-    # VUL HIER JOUW SHEET ID IN
-    SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI" 
-
-    @st.cache_data(ttl=600)
-    def load_sheet(tabblad):
-        url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={tabblad}"
-        return pd.read_csv(url)
-
     st.title("🏢 Personeelsportaal")
     tab1, tab2, tab3 = st.tabs(["Aanwezigheid", "Telefoongids", "Handboek"])
 
