@@ -5,7 +5,7 @@ import pandas as pd
 st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # Jouw unieke Sheet ID
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 @st.cache_data(ttl=60)
@@ -18,24 +18,30 @@ try:
     df = get_data()
     
     # Tabs aanmaken voor de hoofdsecties
-    tab1, tab2, tab3 = st.tabs(["Aanwezigheid per afdeling aanwezig", "Telefoongids", "Handboek"])
+    tab1, tab2, tab3 = st.tabs(["Aanwezigheid", "Telefoongids", "Handboek"])
 
     with tab1:
-        st.header("Wie is er vandaag per afdeling aanwezig?")
+        st.header("Wie is er vandaag?")
         
         # Zorg dat de kolomnaam 'Afdeling' bestaat
         if 'Afdeling' in df.columns:
-            # Haal unieke afdelingen op en sorteer ze
+            # Haal unieke afdelingen op en sorteer ze, en voeg "Totaaloverzicht" als eerste toe
             afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
+            alle_tabs = ["Totaaloverzicht"] + afdelingen_lijst
             
-            # Maak dynamisch sub-tabs aan voor elke afdeling
-            subtabs = st.tabs(afdelingen_lijst)
+            # Maak dynamisch sub-tabs aan
+            subtabs = st.tabs(alle_tabs)
             
+            # Sub-tab 0: Het totaaloverzicht van iedereen
+            with subtabs[0]:
+                st.subheader("Totaaloverzicht alle medewerkers")
+                st.dataframe(df[['Naam', 'Afdeling', 'Status']], use_container_width=True)
+            
+            # De overige sub-tabs per afdeling
             for i, afdeling in enumerate(afdelingen_lijst):
-                with subtabs[i]:
-                    # Filter de data voor de huidige afdeling
+                with subtabs[i + 1]:
+                    st.subheader(f"Afdeling: {afdeling}")
                     df_afdeling = df[df['Afdeling'] == afdeling]
-                    # Toon de tabel
                     st.dataframe(df_afdeling[['Naam', 'Status']], use_container_width=True)
         else:
             st.warning("Kolom 'Afdeling' niet gevonden in de Google Sheet. Voeg deze kolom toe.")
@@ -55,6 +61,9 @@ try:
         st.header("Personeelshandboek")
         st.info("Het personeelshandboek volgt binnenkort.")
 
+except Exception as e:
+    st.error("Er ging iets mis bij het ophalen van de data.")
+    st.write("Foutmelding:", e)
 except Exception as e:
     st.error("Er ging iets mis bij het ophalen van de data.")
     st.write("Foutmelding:", e)
