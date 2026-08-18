@@ -64,6 +64,3 @@ try:
 except Exception as e:
     st.error("Er ging iets mis bij het ophalen van de data.")
     st.write("Foutmelding:", e)
-except Exception as e:
-    st.error("Er ging iets mis bij het ophalen van de data.")
-    st.write("Foutmelding:", e)
