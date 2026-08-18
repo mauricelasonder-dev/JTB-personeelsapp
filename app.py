@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
@@ -41,7 +41,7 @@ if check_password():
         dagen_map = {0: "Ma", 1: "Di", 2: "Wo", 3: "Do", 4: "Vr", 5: "Za", 6: "Zo"}
         vandaag_code = dagen_map.get(datetime.datetime.today().weekday())
 
-        # Functie om de actuele status te bepalen
+        # Functie om de actuele status te bepalen inclusief 0.5 voor ochtend
         def bereken_status(row):
             naam = row['Naam']
             if naam in st.session_state["custom_statuses"]:
@@ -50,12 +50,15 @@ if check_password():
             if vandaag_code and vandaag_code in df.columns:
                 werkdag_waarde = row[vandaag_code]
                 if pd.notna(werkdag_waarde):
+                    # Check voor getallen of tekst
                     val_str = str(werkdag_waarde).strip().lower()
                     if val_str in ["1", "1.0", "waar", "true"]:
                         return "Aanwezig (Rooster)"
-                    elif val_str in ["ochtend", "0.5 ochtend"]:
+                    elif val_str in ["0.5", "0,5"]:
+                        return "Aanwezig (Ochtend)" # Standaard de ochtend bij 0.5
+                    elif val_str in ["ochtend"]:
                         return "Aanwezig (Ochtend)"
-                    elif val_str in ["middag", "0.5 middag"]:
+                    elif val_str in ["middag"]:
                         return "Aanwezig (Middag)"
             
             return "Vrij (Rooster)"
@@ -68,7 +71,7 @@ if check_password():
         with tab1:
             st.header("Wie is er vandaag?")
             
-            # Direct op het beginscherm het inklapmenu inclusief halve dagen opties
+            # Direct op het beginscherm het inklapmenu
             with st.expander("🛠️ Zelf ziek, vrij of halve dag melden voor vandaag"):
                 col_m, col_s, col_btn = st.columns([2, 2, 1])
                 with col_m:
