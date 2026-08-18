@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
+import datetime
 
 # Pagina instellingen
 st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
-# Jouw unieke Sheet ID
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 @st.cache_data(ttl=60)
@@ -14,53 +14,39 @@ def get_data():
 
 st.title("🏢 Personeelsportaal")
 
+# 1. Bepaal de dag van vandaag
+dagen = ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"]
+vandaag_index = datetime.datetime.today().weekday() # 0=Ma, 4=Vr
+dag_naam = dagen[vandaag_index] if vandaag_index < 5 else None
+
 try:
     df = get_data()
-    
-    # Tabs aanmaken voor de hoofdsecties
-    tab1, tab2, tab3 = st.tabs(["Aanwezigheid", "Telefoongids", "Handboek"])
+
+    # 2. Status berekenen
+    # Als de status kolom leeg is, kijk naar het rooster
+    def bepaal_status(row):
+        if pd.notna(row['Status']) and row['Status'] != "Aanwezig":
+            return row['Status'] # Gebruiker heeft handmatig iets anders ingevuld
+        if dag_naam and row.get(dag_naam) == 1:
+            return "Aanwezig"
+        return "Vrij (Rooster)"
+
+    df['Actuele_Status'] = df.apply(bepaal_status, axis=1)
+
+    tab1, tab2, tab3 = st.tabs(["Aanwezigheid", "Telefoongids", "Zelf Status Wijzigen"])
 
     with tab1:
-        st.header("Wie is er vandaag?")
-        
-        # Zorg dat de kolomnaam 'Afdeling' bestaat
-        if 'Afdeling' in df.columns:
-            # Haal unieke afdelingen op en sorteer ze, en voeg "Totaaloverzicht" als eerste toe
-            afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
-            alle_tabs = ["Totaaloverzicht"] + afdelingen_lijst
-            
-            # Maak dynamisch sub-tabs aan
-            subtabs = st.tabs(alle_tabs)
-            
-            # Sub-tab 0: Het totaaloverzicht van iedereen
-            with subtabs[0]:
-                st.subheader("Totaaloverzicht alle medewerkers")
-                st.dataframe(df[['Naam', 'Afdeling', 'Status']], use_container_width=True)
-            
-            # De overige sub-tabs per afdeling
-            for i, afdeling in enumerate(afdelingen_lijst):
-                with subtabs[i + 1]:
-                    st.subheader(f"Afdeling: {afdeling}")
-                    df_afdeling = df[df['Afdeling'] == afdeling]
-                    st.dataframe(df_afdeling[['Naam', 'Status']], use_container_width=True)
-        else:
-            st.warning("Kolom 'Afdeling' niet gevonden in de Google Sheet. Voeg deze kolom toe.")
-
-    with tab2:
-        st.header("Interne Telefoongids")
-        zoekterm = st.text_input("Zoek op naam of functie:")
-        
-        df_display = df
-        if zoekterm:
-            df_display = df[df['Naam'].str.contains(zoekterm, case=False, na=False) | 
-                            df['Functie'].str.contains(zoekterm, case=False, na=False)]
-        
-        st.dataframe(df_display[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
+        # Hier komt je bestaande afdelingen/totaaloverzicht logica
+        # Gebruik df['Actuele_Status'] in plaats van df['Status']
+        st.dataframe(df[['Naam', 'Afdeling', 'Actuele_Status']], use_container_width=True)
 
     with tab3:
-        st.header("Personeelshandboek")
-        st.info("Het personeelshandboek volgt binnenkort.")
+        st.header("Geef je status door")
+        naam = st.selectbox("Selecteer je naam:", df['Naam'].unique())
+        nieuwe_status = st.selectbox("Nieuwe status:", ["Aanwezig", "Ziek", "Vrij"])
+        if st.button("Opslaan"):
+            st.warning("Let op: Omdat we met een CSV-link werken, is dit een visuele wijziging. Voor echte opslag in Google Sheets is een Google-API koppeling (Gspread) nodig.")
+            st.write(f"Status voor {naam} gewijzigd naar {nieuwe_status}")
 
 except Exception as e:
-    st.error("Er ging iets mis bij het ophalen van de data.")
-    st.write("Foutmelding:", e)
+    st.error(f"Fout bij laden: {e}")
