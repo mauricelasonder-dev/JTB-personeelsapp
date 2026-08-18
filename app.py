@@ -18,7 +18,7 @@ try:
     df = get_data()
     
     # Tabs aanmaken voor de hoofdsecties
-    tab1, tab2, tab3 = st.tabs(["Aanwezigheid per afdeling", "Telefoongids", "Handboek"])
+    tab1, tab2, tab3 = st.tabs(["Aanwezigheid per afdeling aanwezig", "Telefoongids", "Handboek"])
 
     with tab1:
         st.header("Wie is er vandaag per afdeling?")
