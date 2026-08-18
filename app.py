@@ -6,7 +6,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
+SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
 
 # Wachtwoord controle functie
 def check_password():
