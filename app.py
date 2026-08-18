@@ -42,12 +42,12 @@ if check_password():
 
     with tab1:
         st.header("Wie is er vandaag?")
-        df = load_sheet("Medewerkers")
+        df = load_sheet("0")
         st.dataframe(df[['Naam', 'Status']], use_container_width=True)
 
     with tab2:
         st.header("Interne Telefoongids")
-        df_tel = load_sheet("Medewerkers")
+        df_tel = load_sheet("0")
         zoekterm = st.text_input("Zoek op naam of functie:")
         if zoekterm:
             df_tel = df_tel[df_tel['Naam'].str.contains(zoekterm, case=False, na=False) | 
