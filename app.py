@@ -41,7 +41,7 @@ if check_password():
         dagen_map = {0: "Ma", 1: "Di", 2: "Wo", 3: "Do", 4: "Vr", 5: "Za", 6: "Zo"}
         vandaag_code = dagen_map.get(datetime.datetime.today().weekday())
 
-        # Functie om de actuele status te bepalen inclusief 0.5 voor ochtend
+       # Functie om de actuele status te bepalen
         def bereken_status(row):
             naam = row['Naam']
             if naam in st.session_state["custom_statuses"]:
@@ -50,7 +50,9 @@ if check_password():
             if vandaag_code and vandaag_code in df.columns:
                 werkdag_waarde = row[vandaag_code]
                 if pd.notna(werkdag_waarde):
+                    # Omgaan met zowel getallen (1, 0.5) als tekst ("1", "0.5", "0,5")
                     val_str = str(werkdag_waarde).strip().lower()
+                    
                     if val_str in ["1", "1.0", "waar", "true"]:
                         return "Aanwezig (Rooster)"
                     elif val_str in ["0.5", "0,5", "ochtend", "0.5 ochtend"]:
@@ -59,7 +61,6 @@ if check_password():
                         return "Aanwezig (Middag)"
             
             return "Vrij (Rooster)"
-
         df['Actuele_Status'] = df.apply(bereken_status, axis=1)
 
         # Hoofdtabs van de app
