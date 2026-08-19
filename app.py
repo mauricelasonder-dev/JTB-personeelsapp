@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
@@ -24,10 +24,6 @@ def check_password():
     return st.session_state["password_correct"]
 
 if check_password():
-    # Zet hier je logo neer
-    if "logo.png" in [f for f in []]: # Optionele veiligheid voor logo
-        st.image("logo.png", width=300)
-
     st.title("🏢 Personeelsportaal")
     
     @st.cache_data(ttl=60)
@@ -117,25 +113,40 @@ if check_password():
 
         with tab2:
             st.header("Interne Telefoongids")
-            st.subheader("Totaaloverzicht telefoongids")
-            st.dataframe(df[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
-
-            if 'Afdeling' in df.columns:
-                afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
-                subtabs_tel = st.tabs(afdelingen_lijst)
-                
-                for i, afdeling in enumerate(afdelingen_lijst):
-                    with subtabs_tel[i]:
-                        st.subheader(f"Afdeling: {afdeling}")
-                        df_afdeling = df[df['Afdeling'] == afdeling]
-                        st.dataframe(df_afdeling[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
+            
+            # Optionele zoekbalk bovenin voor als je direct iemand zoekt
+            zoekterm = st.text_input("Zoek op naam of functie:", key="zoek_telefoon")
+            
+            if zoekterm and 'Naam' in df.columns and 'Functie' in df.columns:
+                df_display = df[df['Naam'].str.contains(zoekterm, case=False, na=False) | 
+                                df['Functie'].str.contains(zoekterm, case=False, na=False)]
+                st.dataframe(df_display[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
+            else:
+                # Als er niet gezocht wordt, tonen we de tab-structuur (Net zoals bij aanwezigheid)
+                if 'Afdeling' in df.columns:
+                    afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
+                    telefoon_tabs = ["Totaaloverzicht"] + afdelingen_lijst
+                    subtabs_tel = st.tabs(telefoon_tabs)
+                    
+                    # Totaaloverzicht telefoongids als EERSTE tabblad
+                    with subtabs_tel[0]:
+                        st.subheader("Totaaloverzicht Telefoongids")
+                        st.dataframe(df[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
+                    
+                    # Per afdeling telefoongids
+                    for i, afdeling in enumerate(afdelingen_lijst):
+                        with subtabs_tel[i + 1]:
+                            st.subheader(f"Afdeling: {afdeling}")
+                            df_afdeling = df[df['Afdeling'] == afdeling]
+                            st.dataframe(df_afdeling[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
+                else:
+                    st.dataframe(df[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
 
         with tab3:
             st.header("Personeelsgids")
             st.write("Hier vind je het officiële personeelshandboek.")
             
-            # Vervang de URL hieronder met jouw eigen link, maar zorg dat er /preview achter staat!
-            drive_link = "https://drive.google.com/file/d/1mfZn5Mm5355WGYYnqD8G3VUYvZXv7Oe9/preview"
+            drive_link = "https://drive.google.com/file/d/1mfZn5Mm5355WGIYYnqD8G3VUYvZxv7oe9/preview"
             
             st.markdown(
                 f'<a href="{drive_link}" target="_blank"><button style="background-color: #ff4b4b; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">📄 Open het Personeelshandboek</button></a>',
