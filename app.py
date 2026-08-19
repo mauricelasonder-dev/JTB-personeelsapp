@@ -130,12 +130,17 @@ if check_password():
                         df_afdeling = df[df['Afdeling'] == afdeling]
                         st.dataframe(df_afdeling[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
 
-        with tab3:
+      with tab3:
             st.header("Personeelsgids")
             st.write("Hier vind je het officiële personeelshandboek.")
             
-            # De link naar het handboek vanuit Google Drive
-            st.link_button("📄 Open het Personeelshandboek", "https://drive.google.com/file/d/1mfZn5Mm5355WGIYYnqD8G3VUYvZxv7oe9/view?usp=drive_link")
+            # Vervang de URL hieronder met jouw eigen link, maar zorg dat er /preview achter staat!
+            drive_link = "https://drive.google.com/file/d/1mfZn5Mm5355WGIYYnqD8G3VUYvZxv7oe9/preview"
+            
+            st.markdown(
+                f'<a href="{drive_link}" target="_blank"><button style="background-color: #ff4b4b; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">📄 Open het Personeelshandboek</button></a>',
+                unsafe_allow_html=True
+            )
 
     except Exception as e:
         st.error("Kon de data niet laden vanuit Google Sheets.")
