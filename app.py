@@ -146,7 +146,7 @@ if check_password():
             st.header("Personeelsgids")
             st.write("Hier vind je het officiële personeelshandboek.")
             
-            drive_link = "https://drive.google.com/file/d/1mfZn5Mm5355WGIYYnqD8G3VUYvZxv7oe9/preview"
+            drive_link = "https://drive.google.com/file/d/1mfZn5Mm5355WGYYnqD8G3VUYvZXv7Oe9/preview"
             
             st.markdown(
                 f'<a href="{drive_link}" target="_blank"><button style="background-color: #ff4b4b; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">📄 Open het Personeelshandboek</button></a>',
