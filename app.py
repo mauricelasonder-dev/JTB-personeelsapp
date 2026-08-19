@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
@@ -26,10 +26,9 @@ def check_password():
 if check_password():
     st.title("🏢 Personeelsportaal")
     
-    # Geen cache nu om te zorgen dat we direct de echte data zien
+    @st.cache_data(ttl=60)
     def load_data():
         df_temp = pd.read_csv(CSV_URL)
-        # Maak alle kolomnamen schoon (verwijdert eventuele onzichtbare spaties)
         df_temp.columns = df_temp.columns.str.strip()
         return df_temp
 
@@ -70,9 +69,6 @@ if check_password():
 
         with tab1:
             st.header("Wie is er vandaag?")
-            
-            # Debug-info om te zien welke dag de app hanteert en of de kolom gevonden is
-            st.info(f"💡 App-diagnose: Vandaag is het de dagcode **'{vandaag_code}'**. Gevonden kolommen in Sheet: {list(df.columns)}")
             
             # Direct op het beginscherm het inklapmenu
             with st.expander("🛠️ Zelf ziek, vrij of halve dag melden voor vandaag"):
@@ -145,10 +141,6 @@ if check_password():
         with tab3:
             st.header("Personeelsgids")
             st.info("Het personeelshandboek volgt binnenkort.")
-
-    except Exception as e:
-        st.error("Kon de data niet laden vanuit Google Sheets.")
-        st.write("Details:", e)
 
     except Exception as e:
         st.error("Kon de data niet laden vanuit Google Sheets.")
