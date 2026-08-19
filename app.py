@@ -141,12 +141,13 @@ if check_password():
                 else:
                     st.dataframe(df[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
 
-       with tab3:
-    st.header("Personeelsgids")
-    st.write("Hier vind je het officiële personeelshandboek.")
-
-    # Plak hieronder jouw gekopieerde link tussen de aanhalingstekens
-    st.link_button("📄 Open het Personeelshandboek", "https://drive.google.com/file/d/1mfZn5Mm5355WGYYnqD8G3VUYvZXv7Oe9/view?usp=drive_link")
+    with tab3:
+            st.header("Personeelsgids")
+            st.write("Hier vind je het officiële personeelshandboek.")
+            
+            # Plak hieronder jouw gekopieerde link tussen de aanhalingstekens
+            st.link_button("📄 Open het Personeelshandboek", "https://drive.google.com/file/d/1mfZn5Mm5355WGIYYnqD8G3VUYvZxv7oe9/view?usp=drive_link")
+   
 
     except Exception as e:
         st.error("Kon de data niet laden vanuit Google Sheets.")
