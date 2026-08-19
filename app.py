@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
+SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
