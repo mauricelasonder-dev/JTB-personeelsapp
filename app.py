@@ -24,6 +24,9 @@ def check_password():
     return st.session_state["password_correct"]
 
 if check_password():
+    # Zet hier de exacte naam van je geüploade bestand:
+    st.image("logo.png", width=300) 
+
     st.title("🏢 Personeelsportaal")
     
     @st.cache_data(ttl=60)
