@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHF6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
@@ -26,9 +26,12 @@ def check_password():
 if check_password():
     st.title("🏢 Personeelsportaal")
     
-    @st.cache_data(ttl=60)
+    # Geen cache nu om te zorgen dat we direct de echte data zien
     def load_data():
-        return pd.read_csv(CSV_URL)
+        df_temp = pd.read_csv(CSV_URL)
+        # Maak alle kolomnamen schoon (verwijdert eventuele onzichtbare spaties)
+        df_temp.columns = df_temp.columns.str.strip()
+        return df_temp
 
     try:
         df = load_data()
@@ -41,7 +44,7 @@ if check_password():
         dagen_map = {0: "Ma", 1: "Di", 2: "Wo", 3: "Do", 4: "Vr", 5: "Za", 6: "Zo"}
         vandaag_code = dagen_map.get(datetime.datetime.today().weekday())
 
-       # Functie om de actuele status te bepalen
+        # Functie om de actuele status te bepalen
         def bereken_status(row):
             naam = row['Naam']
             if naam in st.session_state["custom_statuses"]:
@@ -50,9 +53,7 @@ if check_password():
             if vandaag_code and vandaag_code in df.columns:
                 werkdag_waarde = row[vandaag_code]
                 if pd.notna(werkdag_waarde):
-                    # Omgaan met zowel getallen (1, 0.5) als tekst ("1", "0.5", "0,5")
                     val_str = str(werkdag_waarde).strip().lower()
-                    
                     if val_str in ["1", "1.0", "waar", "true"]:
                         return "Aanwezig (Rooster)"
                     elif val_str in ["0.5", "0,5", "ochtend", "0.5 ochtend"]:
@@ -61,6 +62,7 @@ if check_password():
                         return "Aanwezig (Middag)"
             
             return "Vrij (Rooster)"
+
         df['Actuele_Status'] = df.apply(bereken_status, axis=1)
 
         # Hoofdtabs van de app
@@ -68,6 +70,9 @@ if check_password():
 
         with tab1:
             st.header("Wie is er vandaag?")
+            
+            # Debug-info om te zien welke dag de app hanteert en of de kolom gevonden is
+            st.info(f"💡 App-diagnose: Vandaag is het de dagcode **'{vandaag_code}'**. Gevonden kolommen in Sheet: {list(df.columns)}")
             
             # Direct op het beginscherm het inklapmenu
             with st.expander("🛠️ Zelf ziek, vrij of halve dag melden voor vandaag"):
@@ -90,7 +95,7 @@ if check_password():
 
             st.markdown("---")
 
-            # Afdelingen weergave op het beginscherm voor Aanwezigheid
+            # Afdelingen weergave op het beginscherm
             if 'Afdeling' in df.columns:
                 afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
                 alle_tabs = ["Totaaloverzicht"] + afdelingen_lijst
@@ -112,8 +117,6 @@ if check_password():
 
         with tab2:
             st.header("Interne Telefoongids")
-            
-            # Optionele zoekbalk om snel iemand op te zoeken doorheen de hele gids
             zoekterm = st.text_input("Zoek op naam of functie:", key="zoek_telefoon")
             
             df_display = df
@@ -122,18 +125,15 @@ if check_password():
                                 df['Functie'].str.contains(zoekterm, case=False, na=False)]
                 st.dataframe(df_display[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
             else:
-                # Als er niet gezocht wordt, tonen we dezelfde tab-structuur per afdeling
                 if 'Afdeling' in df.columns:
                     afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
                     telefoon_tabs = ["Totaaloverzicht"] + afdelingen_lijst
                     subtabs_tel = st.tabs(telefoon_tabs)
                     
-                    # Totaaloverzicht telefoongids
                     with subtabs_tel[0]:
                         st.subheader("Totaaloverzicht Telefoongids")
                         st.dataframe(df[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
                     
-                    # Per afdeling telefoongids
                     for i, afdeling in enumerate(afdelingen_lijst):
                         with subtabs_tel[i + 1]:
                             st.subheader(f"Afdeling: {afdeling}")
@@ -143,8 +143,12 @@ if check_password():
                     st.dataframe(df[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
 
         with tab3:
-            st.header("Personeelshandboek")
+            st.header("Personeelsgids")
             st.info("Het personeelshandboek volgt binnenkort.")
+
+    except Exception as e:
+        st.error("Kon de data niet laden vanuit Google Sheets.")
+        st.write("Details:", e)
 
     except Exception as e:
         st.error("Kon de data niet laden vanuit Google Sheets.")
