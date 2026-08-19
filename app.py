@@ -114,40 +114,27 @@ if check_password():
             else:
                 st.dataframe(df[['Naam', 'Actuele_Status']], use_container_width=True)
 
-        with tab2:
+       with tab2:
             st.header("Interne Telefoongids")
-            zoekterm = st.text_input("Zoek op naam of functie:", key="zoek_telefoon")
-            
-            df_display = df
-            if zoekterm and 'Naam' in df.columns and 'Functie' in df.columns:
-                df_display = df[df['Naam'].str.contains(zoekterm, case=False, na=False) | 
-                                df['Functie'].str.contains(zoekterm, case=False, na=False)]
-                st.dataframe(df_display[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
-            else:
-                if 'Afdeling' in df.columns:
-                    afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
-                    telefoon_tabs = ["Totaaloverzicht"] + afdelingen_lijst
-                    subtabs_tel = st.tabs(telefoon_tabs)
-                    
-                    with subtabs_tel[0]:
-                        st.subheader("Totaaloverzicht Telefoongids")
-                        st.dataframe(df[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
-                    
-                    for i, afdeling in enumerate(afdelingen_lijst):
-                        with subtabs_tel[i + 1]:
-                            st.subheader(f"Afdeling: {afdeling}")
-                            df_afdeling = df[df['Afdeling'] == afdeling]
-                            st.dataframe(df_afdeling[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
-                else:
-                    st.dataframe(df[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
+            st.subheader("Totaaloverzicht telefoongids")
+            st.dataframe(df[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
 
-    with tab3:
+            if 'Afdeling' in df.columns:
+                afdelingen_lijst = sorted(df['Afdeling'].dropna().unique().tolist())
+                subtabs_tel = st.tabs(afdelingen_lijst)
+                
+                for i, afdeling in enumerate(afdelingen_lijst):
+                    with subtabs_tel[i]:
+                        st.subheader(f"Afdeling: {afdeling}")
+                        df_afdeling = df[df['Afdeling'] == afdeling]
+                        st.dataframe(df_afdeling[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
+
+        with tab3:
             st.header("Personeelsgids")
             st.write("Hier vind je het officiële personeelshandboek.")
             
-            # Plak hieronder jouw gekopieerde link tussen de aanhalingstekens
+            # De link naar het handboek vanuit Google Drive
             st.link_button("📄 Open het Personeelshandboek", "https://drive.google.com/file/d/1mfZn5Mm5355WGIYYnqD8G3VUYvZxv7oe9/view?usp=drive_link")
-   
 
     except Exception as e:
         st.error("Kon de data niet laden vanuit Google Sheets.")
