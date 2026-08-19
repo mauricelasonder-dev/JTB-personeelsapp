@@ -7,7 +7,7 @@ st.set_page_config(page_title="Personeelsportaal", layout="wide")
 
 # CONFIGURATIE
 PASSWORD = "Jtb2016!" 
-SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRxDAa7rKPotRcaBwJQGHfRsI"
+SHEET_ID = "1f00UVHf6M2-Gp8jvSYlRXDaA7rKPotRcaBwJQGhFrsI"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Wachtwoord controle
@@ -24,8 +24,9 @@ def check_password():
     return st.session_state["password_correct"]
 
 if check_password():
-    # Zet hier de exacte naam van je geüploade bestand:
-    st.image("logo.png", width=300) 
+    # Zet hier je logo neer
+    if "logo.png" in [f for f in []]: # Optionele veiligheid voor logo
+        st.image("logo.png", width=300)
 
     st.title("🏢 Personeelsportaal")
     
@@ -114,7 +115,7 @@ if check_password():
             else:
                 st.dataframe(df[['Naam', 'Actuele_Status']], use_container_width=True)
 
-       with tab2:
+        with tab2:
             st.header("Interne Telefoongids")
             st.subheader("Totaaloverzicht telefoongids")
             st.dataframe(df[['Naam', 'Afdeling', 'Functie', 'Telefoon']], use_container_width=True)
