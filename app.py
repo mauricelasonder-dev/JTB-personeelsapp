@@ -142,7 +142,7 @@ if check_password():
                 else:
                     st.dataframe(df[['Naam', 'Functie', 'Telefoon']], use_container_width=True)
 
-       with tab3:
+        with tab3:
             st.header("Personeelsgids")
             st.write("Hier vind je het officiële personeelshandboek.")
             
