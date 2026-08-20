@@ -25,10 +25,10 @@ def check_password():
 
 if check_password():
     # Zet hier je logo neer (zorg dat logo.png in dezelfde map staat)
-try:
-    st.image("logo.png", width=300)
-except Exception:
-    pass # Gaat geruisloos verder als het logo (nog) ontbreekt
+    try:
+        st.image("logo.png", width=300)
+    except Exception:
+        pass # Gaat geruisloos verder als het logo (nog) ontbreekt
         
     st.title("🏢 Personeelsportaal")
     
@@ -160,5 +160,7 @@ except Exception:
             )
 
     except Exception as e:
+        st.error("Kon de data niet laden vanuit Google Sheets.")
+        st.write("Details:", e)
         st.error("Kon de data niet laden vanuit Google Sheets.")
         st.write("Details:", e)
