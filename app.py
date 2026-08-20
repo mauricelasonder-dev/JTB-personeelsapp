@@ -24,9 +24,11 @@ def check_password():
     return st.session_state["password_correct"]
 
 if check_password():
-    # Zet hier je logo neer
-    if "logo.png" in [f for f in []]: # Optionele veiligheid voor logo
-        st.image("logo.png", width=300)
+    # Zet hier je logo neer (zorg dat logo.png in dezelfde map staat)
+try:
+    st.image("logo.png", width=300)
+except Exception:
+    pass # Gaat geruisloos verder als het logo (nog) ontbreekt
         
     st.title("🏢 Personeelsportaal")
     
